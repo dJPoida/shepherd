@@ -1,4 +1,21 @@
 ## Local Development
+To start the local development server run
+```
+npm run dev
+```
+
+
+## Upgrading packages
+Use [npm-check-updates](https://www.npmjs.com/package/npm-check-updates) to upgrade the packages
+```
+ncu -i
+```
+
+
+--------------------------------------
+
+
+## Local Development
 Simply, run `npm run dev` and it will start a local server for you to develop on, it will also watch for changes and reload the page for you.
 
 ## Building

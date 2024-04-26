@@ -5,6 +5,6 @@
   "tabWidth": 2,
   "trailingComma": "es5",
   "semi": true,
-  "jsxSingleQuote": true,
-  "printWidth": 140
+  "jsxSingleQuote": false,
+  "printWidth": 100
 }
