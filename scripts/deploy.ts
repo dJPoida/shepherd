@@ -82,7 +82,9 @@ async function deploy() {
       }
     }
     if (!matched) {
-      throw new Error('Could not find a config/homeassistant directory in the root of your home assistant installation.');
+      throw new Error(
+        'Could not find a config/homeassistant directory in the root of your home assistant installation.'
+      );
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
