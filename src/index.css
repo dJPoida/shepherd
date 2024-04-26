@@ -1,1 +1,26 @@
-#root { width: 100%; height: 100%; }
+body {
+  /* This just prevents the screen from flashing white when first loaded */
+  background-color: var(--ha-S100);
+  background-color: #0b101b;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
