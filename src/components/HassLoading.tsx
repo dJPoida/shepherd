@@ -1,6 +1,6 @@
-import { useIcon } from '@hakit/core';
-import { Box, Typography } from '@mui/material';
 import React from 'react';
+import { Box, Typography } from '@mui/material';
+import { useIcon } from '@hakit/core';
 
 /**
  * This component is displayed by the HassConnect component when the
@@ -9,7 +9,7 @@ import React from 'react';
  * This is displayed before the Theme Provider is available,
  * so there are some hard-coded styles which isn't ideal.
  */
-const HassLoading: React.FC = () => {
+export const HassLoading: React.FC = () => {
   const icon = useIcon('mdi:loading');
 
   return (
@@ -41,5 +41,3 @@ const HassLoading: React.FC = () => {
     </Box>
   );
 };
-
-export default HassLoading;

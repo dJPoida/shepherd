@@ -1,7 +1,7 @@
 body {
   /* This just prevents the screen from flashing white when first loaded */
   background-color: var(--ha-S100);
-  background-color: #0b101b;
+  background-color: black;
   height: 100vh;
   padding: 0;
   margin: 0;
