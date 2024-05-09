@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Box, Tab, Tabs, styled } from '@mui/material';
+import { Box, Tab, Tabs, styled } from '@mui/material';
 
 import { TabDefinitions } from '../../types/TabDefinition.type';
 
@@ -28,16 +28,16 @@ export const TabView: React.FC<TabViewProps> = props => {
   const { tabs, selectedTabIndex, onTabChange } = props;
 
   return (
-    <Box sx={{ width: 500 }}>
-      <AppBar color="transparent">
+    <Box className="tab-view" width="100%" height="100%" flexDirection="column" display="flex">
+      <Box className="tab-wrapper">
         <ShepherdTabs value={selectedTabIndex} onChange={onTabChange} variant="fullWidth">
           {tabs.map((tab, index) => (
             <Tab key={tab.key} label={tab.label} tabIndex={index} />
           ))}
         </ShepherdTabs>
-      </AppBar>
+      </Box>
 
-      <Box flex={1}>
+      <Box className="panel-wrapper" flex={1} display="flex">
         {tabs.map((tab, index) => (
           <TabViewPanel key={tab.key} index={index} selectedTabIndex={selectedTabIndex}>
             <tab.tabComponent />

@@ -10,5 +10,9 @@ export const TabViewPanel = (props: {
 
   if (selectedTabIndex !== index) return <></>;
 
-  return <Box>{children}</Box>;
+  return (
+    <Box className="tab-view-panel" display="flex" alignItems="flex-start" flex="1">
+      {children}
+    </Box>
+  );
 };
