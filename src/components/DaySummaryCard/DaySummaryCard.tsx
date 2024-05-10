@@ -1,10 +1,11 @@
 import React from 'react';
 import { CardBase, CardBaseProps, TimeCard } from '@hakit/components';
 import { useEntity } from '@hakit/core';
+import { Typography } from '@mui/material';
 
 export type DaySummaryCardProps = CardBaseProps<'div'>;
 
-const DaySummaryCard: React.FC<DaySummaryCardProps> = props => {
+export const DaySummaryCard: React.FC<DaySummaryCardProps> = props => {
   const { style, ...rest } = props;
 
   const dateSensor = useEntity('sensor.date', {
@@ -22,10 +23,8 @@ const DaySummaryCard: React.FC<DaySummaryCardProps> = props => {
   return (
     <CardBase disabled {...rest} style={{ ...style, padding: '1em' }}>
       <TimeCard onlyFunctionality />
-      <h2>Weather</h2>
-      <h2>What's on?</h2>
+      <Typography variant="h1">Weather</Typography>
+      <Typography variant="h1">What's on?</Typography>
     </CardBase>
   );
 };
-
-export default DaySummaryCard;

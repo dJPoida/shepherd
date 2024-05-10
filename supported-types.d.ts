@@ -101,10 +101,6 @@ declare module "@hakit/core" {
       // Sets the log level for one or more integrations.
       setLevel: ServiceFunction<T, object>;
     };
-    person: {
-      // Reloads persons from the YAML-configuration.
-      reload: ServiceFunction<T, object>;
-    };
     recorder: {
       // Starts purge task - to clean up old data from your database.
       purge: ServiceFunction<
@@ -122,6 +118,8 @@ declare module "@hakit/core" {
       purgeEntities: ServiceFunction<
         T,
         {
+          // List of entities for which the data is to be removed from the recorder database.
+          entity_id?: string;
           // List of domains for which the data needs to be removed from the recorder database. @example sun
           domains?: object;
           // List of glob patterns used to select the entities for which the data is to be removed from the recorder database. @example domain*.object_id*
@@ -134,6 +132,10 @@ declare module "@hakit/core" {
       enable: ServiceFunction<T, object>;
       // Stops the recording of events and state changes.
       disable: ServiceFunction<T, object>;
+    };
+    person: {
+      // Reloads persons from the YAML-configuration.
+      reload: ServiceFunction<T, object>;
     };
     frontend: {
       // Sets the default theme Home Assistant uses. Can be overridden by a user.
@@ -720,6 +722,14 @@ declare module "@hakit/core" {
       >;
     };
     scene: {
+      // Activates a scene.
+      turnOn: ServiceFunction<
+        T,
+        {
+          // Time it takes the devices to transition into the states defined in the scene.
+          transition?: number;
+        }
+      >;
       // Reloads the scenes from the YAML-configuration.
       reload: ServiceFunction<T, object>;
       // Activates a scene with configuration.
@@ -746,14 +756,6 @@ declare module "@hakit/core" {
       >;
       // Deletes a dynamically created scene.
       delete: ServiceFunction<T, object>;
-      // Activates a scene.
-      turnOn: ServiceFunction<
-        T,
-        {
-          // Time it takes the devices to transition into the states defined in the scene.
-          transition?: number;
-        }
-      >;
     };
     logbook: {
       // Creates a custom entry in the logbook.
@@ -783,41 +785,9 @@ declare module "@hakit/core" {
       // Toggle a script. Starts it, if isn't running, stops it otherwise.
       toggle: ServiceFunction<T, object>;
     };
-    conversation: {
-      // Launches a conversation from a transcribed text.
-      process: ServiceFunction<
-        T,
-        {
-          // Transcribed text input. @example Turn all lights on
-          text: string;
-          // Language of text. Defaults to server language. @example NL
-          language?: string;
-          // Conversation agent to process your request. The conversation agent is the brains of your assistant. It processes the incoming text commands. @example homeassistant
-          agent_id?: object;
-          // ID of the conversation, to be able to continue a previous conversation @example my_conversation_1
-          conversation_id?: string;
-        }
-      >;
-      // Reloads the intent configuration.
-      reload: ServiceFunction<
-        T,
-        {
-          // Language to clear cached intents for. Defaults to server language. @example NL
-          language?: string;
-          // Conversation agent to reload. @example homeassistant
-          agent_id?: object;
-        }
-      >;
-    };
     zone: {
       // Reloads zones from the YAML-configuration.
       reload: ServiceFunction<T, object>;
-    };
-    inputButton: {
-      // Reloads helpers from the YAML-configuration.
-      reload: ServiceFunction<T, object>;
-      // Mimics the physical button press on the device.
-      press: ServiceFunction<T, object>;
     };
     inputSelect: {
       // Reloads helpers from the YAML-configuration.
@@ -885,6 +855,22 @@ declare module "@hakit/core" {
         }
       >;
     };
+    inputButton: {
+      // Reloads helpers from the YAML-configuration.
+      reload: ServiceFunction<T, object>;
+      // Mimics the physical button press on the device.
+      press: ServiceFunction<T, object>;
+    };
+    inputBoolean: {
+      // Reloads helpers from the YAML-configuration.
+      reload: ServiceFunction<T, object>;
+      // Turns on the helper.
+      turnOn: ServiceFunction<T, object>;
+      // Turns off the helper.
+      turnOff: ServiceFunction<T, object>;
+      // Toggles the helper on/off.
+      toggle: ServiceFunction<T, object>;
+    };
     inputNumber: {
       // Reloads helpers from the YAML-configuration.
       reload: ServiceFunction<T, object>;
@@ -900,16 +886,6 @@ declare module "@hakit/core" {
       increment: ServiceFunction<T, object>;
       // Decrements the current value by 1 step.
       decrement: ServiceFunction<T, object>;
-    };
-    inputBoolean: {
-      // Reloads helpers from the YAML-configuration.
-      reload: ServiceFunction<T, object>;
-      // Turns on the helper.
-      turnOn: ServiceFunction<T, object>;
-      // Turns off the helper.
-      turnOff: ServiceFunction<T, object>;
-      // Toggles the helper on/off.
-      toggle: ServiceFunction<T, object>;
     };
     tts: {
       // Speaks something using text-to-speech on a media player.
@@ -966,6 +942,122 @@ declare module "@hakit/core" {
     template: {
       // Reloads template entities from the YAML-configuration.
       reload: ServiceFunction<T, object>;
+    };
+    remote: {
+      // Turns the device off.
+      turnOff: ServiceFunction<T, object>;
+      // Sends the power on command.
+      turnOn: ServiceFunction<
+        T,
+        {
+          // Activity ID or activity name to be started. @example BedroomTV
+          activity?: string;
+        }
+      >;
+      // Toggles a device on/off.
+      toggle: ServiceFunction<T, object>;
+      // Sends a command or a list of commands to a device.
+      sendCommand: ServiceFunction<
+        T,
+        {
+          // Device ID to send command to. @example 32756745
+          device?: string;
+          // A single command or a list of commands to send. @example Play
+          command: object;
+          // The number of times you want to repeat the commands.
+          num_repeats?: number;
+          // The time you want to wait in between repeated commands.
+          delay_secs?: number;
+          // The time you want to have it held before the release is send.
+          hold_secs?: number;
+        }
+      >;
+      // Learns a command or a list of commands from a device.
+      learnCommand: ServiceFunction<
+        T,
+        {
+          // Device ID to learn command from. @example television
+          device?: string;
+          // A single command or a list of commands to learn. @example Turn on
+          command?: object;
+          // The type of command to be learned.
+          command_type?: "ir" | "rf";
+          // If code must be stored as an alternative. This is useful for discrete codes. Discrete codes are used for toggles that only perform one function. For example, a code to only turn a device on. If it is on already, sending the code won't change the state.
+          alternative?: boolean;
+          // Timeout for the command to be learned.
+          timeout?: number;
+        }
+      >;
+      // Deletes a command or a list of commands from the database.
+      deleteCommand: ServiceFunction<
+        T,
+        {
+          // Device from which commands will be deleted. @example television
+          device?: string;
+          // The single command or the list of commands to be deleted. @example Mute
+          command: object;
+        }
+      >;
+    };
+    cover: {
+      // Opens a cover.
+      openCover: ServiceFunction<T, object>;
+      // Closes a cover.
+      closeCover: ServiceFunction<T, object>;
+      // Moves a cover to a specific position.
+      setCoverPosition: ServiceFunction<
+        T,
+        {
+          // Target position.
+          position: number;
+        }
+      >;
+      // Stops the cover movement.
+      stopCover: ServiceFunction<T, object>;
+      // Toggles a cover open/closed.
+      toggle: ServiceFunction<T, object>;
+      // Tilts a cover open.
+      openCoverTilt: ServiceFunction<T, object>;
+      // Tilts a cover to close.
+      closeCoverTilt: ServiceFunction<T, object>;
+      // Stops a tilting cover movement.
+      stopCoverTilt: ServiceFunction<T, object>;
+      // Moves a cover tilt to a specific position.
+      setCoverTiltPosition: ServiceFunction<
+        T,
+        {
+          // Target tilt positition.
+          tilt_position: number;
+        }
+      >;
+      // Toggles a cover tilt open/closed.
+      toggleCoverTilt: ServiceFunction<T, object>;
+    };
+    conversation: {
+      // Launches a conversation from a transcribed text.
+      process: ServiceFunction<
+        T,
+        {
+          // Transcribed text input. @example Turn all lights on
+          text: string;
+          // Language of text. Defaults to server language. @example NL
+          language?: string;
+          // Conversation agent to process your request. The conversation agent is the brains of your assistant. It processes the incoming text commands. @example homeassistant
+          agent_id?: object;
+          // ID of the conversation, to be able to continue a previous conversation @example my_conversation_1
+          conversation_id?: string;
+        }
+      >;
+      // Reloads the intent configuration.
+      reload: ServiceFunction<
+        T,
+        {
+          // Language to clear cached intents for. Defaults to server language. @example NL
+          language?: string;
+          // Conversation agent to reload. @example homeassistant
+          agent_id?: object;
+        }
+      >;
     };
     mediaPlayer: {
       // Turns on the power of the media player.
@@ -1073,260 +1165,6 @@ declare module "@hakit/core" {
         }
       >;
     };
-    remote: {
-      // Turns the device off.
-      turnOff: ServiceFunction<T, object>;
-      // Sends the power on command.
-      turnOn: ServiceFunction<
-        T,
-        {
-          // Activity ID or activity name to be started. @example BedroomTV
-          activity?: string;
-        }
-      >;
-      // Toggles a device on/off.
-      toggle: ServiceFunction<T, object>;
-      // Sends a command or a list of commands to a device.
-      sendCommand: ServiceFunction<
-        T,
-        {
-          // Device ID to send command to. @example 32756745
-          device?: string;
-          // A single command or a list of commands to send. @example Play
-          command: object;
-          // The number of times you want to repeat the commands.
-          num_repeats?: number;
-          // The time you want to wait in between repeated commands.
-          delay_secs?: number;
-          // The time you want to have it held before the release is send.
-          hold_secs?: number;
-        }
-      >;
-      // Learns a command or a list of commands from a device.
-      learnCommand: ServiceFunction<
-        T,
-        {
-          // Device ID to learn command from. @example television
-          device?: string;
-          // A single command or a list of commands to learn. @example Turn on
-          command?: object;
-          // The type of command to be learned.
-          command_type?: "ir" | "rf";
-          // If code must be stored as an alternative. This is useful for discrete codes. Discrete codes are used for toggles that only perform one function. For example, a code to only turn a device on. If it is on already, sending the code won't change the state.
-          alternative?: boolean;
-          // Timeout for the command to be learned.
-          timeout?: number;
-        }
-      >;
-      // Deletes a command or a list of commands from the database.
-      deleteCommand: ServiceFunction<
-        T,
-        {
-          // Device from which commands will be deleted. @example television
-          device?: string;
-          // The single command or the list of commands to be deleted. @example Mute
-          command: object;
-        }
-      >;
-    };
-    cover: {
-      // Opens a cover.
-      openCover: ServiceFunction<T, object>;
-      // Closes a cover.
-      closeCover: ServiceFunction<T, object>;
-      // Moves a cover to a specific position.
-      setCoverPosition: ServiceFunction<
-        T,
-        {
-          // Target position.
-          position: number;
-        }
-      >;
-      // Stops the cover movement.
-      stopCover: ServiceFunction<T, object>;
-      // Toggles a cover open/closed.
-      toggle: ServiceFunction<T, object>;
-      // Tilts a cover open.
-      openCoverTilt: ServiceFunction<T, object>;
-      // Tilts a cover to close.
-      closeCoverTilt: ServiceFunction<T, object>;
-      // Stops a tilting cover movement.
-      stopCoverTilt: ServiceFunction<T, object>;
-      // Moves a cover tilt to a specific position.
-      setCoverTiltPosition: ServiceFunction<
-        T,
-        {
-          // Target tilt positition.
-          tilt_position: number;
-        }
-      >;
-      // Toggles a cover tilt open/closed.
-      toggleCoverTilt: ServiceFunction<T, object>;
-    };
-    sonoff: {
-      // Sends a command to a device.
-      sendCommand: ServiceFunction<
-        T,
-        {
-          // Device ID to send command to. @example 1000123456
-          device?: object;
-          // A single command to send. @example switch
-          cmd?: object;
-        }
-      >;
-    };
-    button: {
-      // Press the button entity.
-      press: ServiceFunction<T, object>;
-    };
-    climate: {
-      // Turns climate device on.
-      turnOn: ServiceFunction<T, object>;
-      // Turns climate device off.
-      turnOff: ServiceFunction<T, object>;
-      // Toggles climate device, from on to off, or off to on.
-      toggle: ServiceFunction<T, object>;
-      // Sets HVAC operation mode.
-      setHvacMode: ServiceFunction<
-        T,
-        {
-          // HVAC operation mode.
-          hvac_mode?:
-            | "off"
-            | "auto"
-            | "cool"
-            | "dry"
-            | "fan_only"
-            | "heat_cool"
-            | "heat";
-        }
-      >;
-      // Sets preset mode.
-      setPresetMode: ServiceFunction<
-        T,
-        {
-          // Preset mode. @example away
-          preset_mode: string;
-        }
-      >;
-      // Turns auxiliary heater on/off.
-      setAuxHeat: ServiceFunction<
-        T,
-        {
-          // New value of auxiliary heater.
-          aux_heat: boolean;
-        }
-      >;
-      // Sets target temperature.
-      setTemperature: ServiceFunction<
-        T,
-        {
-          // Target temperature.
-          temperature?: number;
-          // High target temperature.
-          target_temp_high?: number;
-          // Low target temperature.
-          target_temp_low?: number;
-          // HVAC operation mode.
-          hvac_mode?:
-            | "off"
-            | "auto"
-            | "cool"
-            | "dry"
-            | "fan_only"
-            | "heat_cool"
-            | "heat";
-        }
-      >;
-      // Sets target humidity.
-      setHumidity: ServiceFunction<
-        T,
-        {
-          // Target humidity.
-          humidity: number;
-        }
-      >;
-      // Sets fan operation mode.
-      setFanMode: ServiceFunction<
-        T,
-        {
-          // Fan operation mode. @example low
-          fan_mode: string;
-        }
-      >;
-      // Sets swing operation mode.
-      setSwingMode: ServiceFunction<
-        T,
-        {
-          // Swing operation mode. @example horizontal
-          swing_mode: string;
-        }
-      >;
-    };
-    fan: {
-      // Turns fan on.
-      turnOn: ServiceFunction<
-        T,
-        {
-          // Speed of the fan.
-          percentage?: number;
-          // Preset mode. @example auto
-          preset_mode?: string;
-        }
-      >;
-      // Turns fan off.
-      turnOff: ServiceFunction<T, object>;
-      // Toggles the fan on/off.
-      toggle: ServiceFunction<T, object>;
-      // Increases the speed of the fan.
-      increaseSpeed: ServiceFunction<
-        T,
-        {
-          // Increases the speed by a percentage step.
-          percentage_step?: number;
-        }
-      >;
-      // Decreases the speed of the fan.
-      decreaseSpeed: ServiceFunction<
-        T,
-        {
-          // Decreases the speed by a percentage step.
-          percentage_step?: number;
-        }
-      >;
-      // Controls oscillatation of the fan.
-      oscillate: ServiceFunction<
-        T,
-        {
-          // Turn on/off oscillation.
-          oscillating: boolean;
-        }
-      >;
-      // Sets the fan rotation direction.
-      setDirection: ServiceFunction<
-        T,
-        {
-          // Direction to rotate.
-          direction: "forward" | "reverse";
-        }
-      >;
-      // Sets the fan speed.
-      setPercentage: ServiceFunction<
-        T,
-        {
-          // Speed of the fan.
-          percentage: number;
-        }
-      >;
-      // Sets preset mode.
-      setPresetMode: ServiceFunction<
-        T,
-        {
-          // Preset mode. @example auto
-          preset_mode: string;
-        }
-      >;
-    };
     number: {
       // Sets the value of a number.
       setValue: ServiceFunction<
@@ -1334,22 +1172,6 @@ declare module "@hakit/core" {
         {
           // The target value to set. @example 42
           value?: string;
-        }
-      >;
-    };
-    counter: {
-      // Increments a counter.
-      increment: ServiceFunction<T, object>;
-      // Decrements a counter.
-      decrement: ServiceFunction<T, object>;
-      // Resets a counter.
-      reset: ServiceFunction<T, object>;
-      // Sets the counter value.
-      setValue: ServiceFunction<
-        T,
-        {
-          // The new counter value the entity should be set to.
-          value: number;
         }
       >;
     };
@@ -1383,33 +1205,37 @@ declare module "@hakit/core" {
         }
       >;
     };
-    inputText: {
-      // Reloads helpers from the YAML-configuration.
-      reload: ServiceFunction<T, object>;
-      // Sets the value.
-      setValue: ServiceFunction<
-        T,
-        {
-          // The target value. @example This is an example text
-          value: string;
-        }
-      >;
-    };
-    restCommand: {
-      //
-      studioDashboardSleep: ServiceFunction<T, object>;
-      //
-      studioDashboardWake: ServiceFunction<T, object>;
-      //
-      studioDashboardSetBrightness: ServiceFunction<T, object>;
-      //
-      studioDashboardUpdateBrightness: ServiceFunction<T, object>;
-      // Reloads RESTful commands from the YAML-configuration.
-      reload: ServiceFunction<T, object>;
-    };
     schedule: {
       // Reloads schedules from the YAML-configuration.
       reload: ServiceFunction<T, object>;
+    };
+    sonoff: {
+      // Sends a command to a device.
+      sendCommand: ServiceFunction<
+        T,
+        {
+          // Device ID to send command to. @example 1000123456
+          device?: object;
+          // A single command to send. @example switch
+          cmd?: object;
+        }
+      >;
+    };
+    counter: {
+      // Increments a counter.
+      increment: ServiceFunction<T, object>;
+      // Decrements a counter.
+      decrement: ServiceFunction<T, object>;
+      // Resets a counter.
+      reset: ServiceFunction<T, object>;
+      // Sets the counter value.
+      setValue: ServiceFunction<
+        T,
+        {
+          // The new counter value the entity should be set to.
+          value: number;
+        }
+      >;
     };
     inputDatetime: {
       // Reloads helpers from the YAML-configuration.
@@ -1429,75 +1255,29 @@ declare module "@hakit/core" {
         }
       >;
     };
-    weather: {
-      // Get weather forecast.
-      getForecast: ServiceFunction<
-        T,
-        {
-          // Forecast type: daily, hourly or twice daily.
-          type: "daily" | "hourly" | "twice_daily";
-        }
-      >;
-      // Get weather forecasts.
-      getForecasts: ServiceFunction<
-        T,
-        {
-          // Forecast type: daily, hourly or twice daily.
-          type: "daily" | "hourly" | "twice_daily";
-        }
-      >;
+    restCommand: {
+      //
+      studioDashboardSleep: ServiceFunction<T, object>;
+      //
+      studioDashboardWake: ServiceFunction<T, object>;
+      //
+      studioDashboardSetBrightness: ServiceFunction<T, object>;
+      //
+      studioDashboardUpdateBrightness: ServiceFunction<T, object>;
+      // Reloads RESTful commands from the YAML-configuration.
+      reload: ServiceFunction<T, object>;
     };
-    todo: {
-      // Add a new to-do list item.
-      addItem: ServiceFunction<
+    inputText: {
+      // Reloads helpers from the YAML-configuration.
+      reload: ServiceFunction<T, object>;
+      // Sets the value.
+      setValue: ServiceFunction<
         T,
         {
-          // The name that represents the to-do item. @example Submit income tax return
-          item: string;
-          // The date the to-do item is expected to be completed. @example 2023-11-17
-          due_date?: object;
-          // The date and time the to-do item is expected to be completed. @example 2023-11-17 13:30:00
-          due_datetime?: object;
-          // A more complete description of the to-do item than provided by the item name. @example A more complete description of the to-do item than that provided by the summary.
-          description?: string;
+          // The target value. @example This is an example text
+          value: string;
         }
       >;
-      // Update an existing to-do list item based on its name.
-      updateItem: ServiceFunction<
-        T,
-        {
-          // The name for the to-do list item. @example Submit income tax return
-          item: string;
-          // The new name of the to-do item @example Something else
-          rename?: string;
-          // A status or confirmation of the to-do item. @example needs_action
-          status?: "needs_action" | "completed";
-          // The date the to-do item is expected to be completed. @example 2023-11-17
-          due_date?: object;
-          // The date and time the to-do item is expected to be completed. @example 2023-11-17 13:30:00
-          due_datetime?: object;
-          // A more complete description of the to-do item than provided by the item name. @example A more complete description of the to-do item than that provided by the summary.
-          description?: string;
-        }
-      >;
-      // Remove an existing to-do list item by its name.
-      removeItem: ServiceFunction<
-        T,
-        {
-          // The name for the to-do list items.
-          item: string;
-        }
-      >;
-      // Get items on a to-do list.
-      getItems: ServiceFunction<
-        T,
-        {
-          // Only return to-do items with the specified statuses. Returns not completed actions by default. @example needs_action
-          status?: "needs_action" | "completed";
-        }
-      >;
-      // Remove all to-do list items that have been completed.
-      removeCompletedItems: ServiceFunction<T, object>;
     };
     cast: {
       // Shows a dashboard view on a Chromecast device.
@@ -1514,6 +1294,14 @@ declare module "@hakit/core" {
       >;
     };
     notify: {
+      // Sends a notification message.
+      sendMessage: ServiceFunction<
+        T,
+        {
+          // Your notification message.
+          message: string;
+        }
+      >;
       // Sends a notification that is visible in the **Notifications** panel.
       persistentNotification: ServiceFunction<
         T,
@@ -1657,6 +1445,46 @@ declare module "@hakit/core" {
         }
       >;
     };
+    camera: {
+      // Enables the motion detection.
+      enableMotionDetection: ServiceFunction<T, object>;
+      // Disables the motion detection.
+      disableMotionDetection: ServiceFunction<T, object>;
+      // Turns off the camera.
+      turnOff: ServiceFunction<T, object>;
+      // Turns on the camera.
+      turnOn: ServiceFunction<T, object>;
+      // Takes a snapshot from a camera.
+      snapshot: ServiceFunction<
+        T,
+        {
+          // Template of a filename. Variable available is `entity_id`. @example /tmp/snapshot_{{ entity_id.name }}.jpg
+          filename: string;
+        }
+      >;
+      // Plays the camera stream on a supported media player.
+      playStream: ServiceFunction<
+        T,
+        {
+          // Media players to stream to.
+          media_player: string;
+          // Stream format supported by the media player.
+          format?: "hls";
+        }
+      >;
+      // Creates a recording of a live camera feed.
+      record: ServiceFunction<
+        T,
+        {
+          // Template of a filename. Variable available is `entity_id`. Must be mp4. @example /tmp/snapshot_{{ entity_id.name }}.mp4
+          filename: string;
+          // Planned duration of the recording. The actual duration may vary.
+          duration?: number;
+          // Planned lookback period to include in the recording (in addition to the duration). Only available if there is currently an active HLS stream. The actual length of the lookback period may vary.
+          lookback?: number;
+        }
+      >;
+    };
     browserMod: {
       // Run a sequence of services
       sequence: ServiceFunction<
@@ -1775,54 +1603,6 @@ declare module "@hakit/core" {
         }
       >;
     };
-    camera: {
-      // Enables the motion detection.
-      enableMotionDetection: ServiceFunction<T, object>;
-      // Disables the motion detection.
-      disableMotionDetection: ServiceFunction<T, object>;
-      // Turns off the camera.
-      turnOff: ServiceFunction<T, object>;
-      // Turns on the camera.
-      turnOn: ServiceFunction<T, object>;
-      // Takes a snapshot from a camera.
-      snapshot: ServiceFunction<
-        T,
-        {
-          // Template of a filename. Variable available is `entity_id`. @example /tmp/snapshot_{{ entity_id.name }}.jpg
-          filename: string;
-        }
-      >;
-      // Plays the camera stream on a supported media player.
-      playStream: ServiceFunction<
-        T,
-        {
-          // Media players to stream to.
-          media_player: string;
-          // Stream format supported by the media player.
-          format?: "hls";
-        }
-      >;
-      // Creates a recording of a live camera feed.
-      record: ServiceFunction<
-        T,
-        {
-          // Template of a filename. Variable available is `entity_id`. Must be mp4. @example /tmp/snapshot_{{ entity_id.name }}.mp4
-          filename: string;
-          // Planned duration of the recording. The actual duration may vary.
-          duration?: number;
-          // Planned lookback period to include in the recording (in addition to the duration). Only available if there is currently an active HLS stream. The actual length of the lookback period may vary.
-          lookback?: number;
-        }
-      >;
-    };
-    switch: {
-      // Turns a switch off.
-      turnOff: ServiceFunction<T, object>;
-      // Turns a switch on.
-      turnOn: ServiceFunction<T, object>;
-      // Toggles a switch on/off.
-      toggle: ServiceFunction<T, object>;
-    };
     mqtt: {
       // Publishes a message to an MQTT topic.
       publish: ServiceFunction<
@@ -1853,47 +1633,223 @@ declare module "@hakit/core" {
       // Reloads MQTT entities from the YAML-configuration.
       reload: ServiceFunction<T, object>;
     };
-    alarmo: {
-      //
-      enableUser: ServiceFunction<
+    mass: {
+      // Perform a global search on the Music Assistant library and all providers.
+      search: ServiceFunction<
         T,
         {
-          // undefined @example Frank
+          // The name/title to search for. @example We Are The Champions
           name: string;
+          // The type of the content to search. Such as artist, album, track, radio or playlist. All types if omitted. @example playlist
+          media_type?: "artist" | "album" | "playlist" | "track" | "radio";
+          // When specifying a track or album name in the name field, you can optionally restrict results by this artist name. @example Queen
+          artist?: string;
+          // When specifying a track name in the name field, you can optionally restrict results by this album name. @example News of the world
+          album?: string;
+          // Maximum number of items to return (per media type). @example 25
+          limit?: number;
         }
       >;
-      //
-      disableUser: ServiceFunction<
+      // Play media on a Music Assistant player with more fine grained control options.
+      playMedia: ServiceFunction<
         T,
         {
-          // undefined @example Frank
-          name: string;
+          // URI or name of the item you want to play. Specify a list if you want to play/enqueue multiple items. @example spotify://playlist/aabbccddeeff
+          media_id: object;
+          // The type of the content to play. Such as artist, album, track or playlist. Will be auto determined if omitted. @example playlist
+          media_type?: "artist" | "album" | "playlist" | "track" | "radio";
+          // When specifying a track or album by name in the Media ID field, you can optionally restrict results by this artist name. @example Queen
+          artist?: string;
+          // When specifying a track by name in the Media ID field, you can optionally restrict results by this album name. @example News of the world
+          album?: string;
+          // If the content should be played now or be added to the queue. Options are: play, replace, next, replace_next, add
+          enqueue?: "play" | "replace" | "next" | "replace_next" | "add";
+          // Enable radio mode to auto generate a playlist based on the selection.
+          radio_mode?: boolean;
+          // If the media should be played as an announcement. @example true
+          announce?: boolean;
+          // Use pre-announcement sound for the announcement. Used with the announce option, omit to use player default. @example true
+          use_pre_announce?: boolean;
+          // Use a forced volume level for the announcement. Used with the announce option, omit to use player default. @example 75
+          announce_volume?: number;
         }
       >;
-      //
-      arm: ServiceFunction<
+    };
+    fan: {
+      // Turns fan on.
+      turnOn: ServiceFunction<
         T,
         {
-          // undefined @example alarm_control_panel.alarm
-          entity_id: string;
-          // undefined @example 1234
-          code?: string;
-          // undefined @example away
-          mode?: "away" | "night" | "home" | "vacation" | "custom";
-          // undefined
-          skip_delay?: boolean;
-          // undefined
-          force?: boolean;
+          // Speed of the fan.
+          percentage?: number;
+          // Preset mode. @example auto
+          preset_mode?: string;
         }
       >;
-      //
-      disarm: ServiceFunction<
+      // Turns fan off.
+      turnOff: ServiceFunction<T, object>;
+      // Toggles the fan on/off.
+      toggle: ServiceFunction<T, object>;
+      // Increases the speed of the fan.
+      increaseSpeed: ServiceFunction<
         T,
         {
-          // undefined @example alarm_control_panel.alarm
-          entity_id: string;
-          // undefined @example 1234
-          code?: string;
+          // Increases the speed by a percentage step.
+          percentage_step?: number;
+        }
+      >;
+      // Decreases the speed of the fan.
+      decreaseSpeed: ServiceFunction<
+        T,
+        {
+          // Decreases the speed by a percentage step.
+          percentage_step?: number;
+        }
+      >;
+      // Controls oscillatation of the fan.
+      oscillate: ServiceFunction<
+        T,
+        {
+          // Turn on/off oscillation.
+          oscillating: boolean;
+        }
+      >;
+      // Sets the fan rotation direction.
+      setDirection: ServiceFunction<
+        T,
+        {
+          // Direction to rotate.
+          direction: "forward" | "reverse";
+        }
+      >;
+      // Sets the fan speed.
+      setPercentage: ServiceFunction<
+        T,
+        {
+          // Speed of the fan.
+          percentage: number;
+        }
+      >;
+      // Sets preset mode.
+      setPresetMode: ServiceFunction<
+        T,
+        {
+          // Preset mode. @example auto
+          preset_mode: string;
+        }
+      >;
+    };
+    switch: {
+      // Turns a switch off.
+      turnOff: ServiceFunction<T, object>;
+      // Turns a switch on.
+      turnOn: ServiceFunction<T, object>;
+      // Toggles a switch on/off.
+      toggle: ServiceFunction<T, object>;
+    };
+    button: {
+      // Press the button entity.
+      press: ServiceFunction<T, object>;
+    };
+    weather: {
+      // Get weather forecast.
+      getForecast: ServiceFunction<
+        T,
+        {
+          // Forecast type: daily, hourly or twice daily.
+          type: "daily" | "hourly" | "twice_daily";
+        }
+      >;
+      // Get weather forecasts.
+      getForecasts: ServiceFunction<
+        T,
+        {
+          // Forecast type: daily, hourly or twice daily.
+          type: "daily" | "hourly" | "twice_daily";
+        }
+      >;
+    };
+    climate: {
+      // Turns climate device on.
+      turnOn: ServiceFunction<T, object>;
+      // Turns climate device off.
+      turnOff: ServiceFunction<T, object>;
+      // Toggles climate device, from on to off, or off to on.
+      toggle: ServiceFunction<T, object>;
+      // Sets HVAC operation mode.
+      setHvacMode: ServiceFunction<
+        T,
+        {
+          // HVAC operation mode.
+          hvac_mode?:
+            | "off"
+            | "auto"
+            | "cool"
+            | "dry"
+            | "fan_only"
+            | "heat_cool"
+            | "heat";
+        }
+      >;
+      // Sets preset mode.
+      setPresetMode: ServiceFunction<
+        T,
+        {
+          // Preset mode. @example away
+          preset_mode: string;
+        }
+      >;
+      // Turns auxiliary heater on/off.
+      setAuxHeat: ServiceFunction<
+        T,
+        {
+          // New value of auxiliary heater.
+          aux_heat: boolean;
+        }
+      >;
+      // Sets target temperature.
+      setTemperature: ServiceFunction<
+        T,
+        {
+          // Target temperature.
+          temperature?: number;
+          // High target temperature.
+          target_temp_high?: number;
+          // Low target temperature.
+          target_temp_low?: number;
+          // HVAC operation mode.
+          hvac_mode?:
+            | "off"
+            | "auto"
+            | "cool"
+            | "dry"
+            | "fan_only"
+            | "heat_cool"
+            | "heat";
+        }
+      >;
+      // Sets target humidity.
+      setHumidity: ServiceFunction<
+        T,
+        {
+          // Target humidity.
+          humidity: number;
+        }
+      >;
+      // Sets fan operation mode.
+      setFanMode: ServiceFunction<
+        T,
+        {
+          // Fan operation mode. @example low
+          fan_mode: string;
+        }
+      >;
+      // Sets swing operation mode.
+      setSwingMode: ServiceFunction<
+        T,
+        {
+          // Swing operation mode. @example horizontal
+          swing_mode: string;
         }
       >;
     };
@@ -1955,15 +1911,47 @@ declare module "@hakit/core" {
         }
       >;
     };
-    googleAssistantSdk: {
-      // Sends a command as a text query to Google Assistant.
-      sendTextCommand: ServiceFunction<
+    alarmo: {
+      //
+      arm: ServiceFunction<
         T,
         {
-          // Command(s) to send to Google Assistant. @example turn off kitchen TV
-          command?: string;
-          // Name(s) of media player entities to play response on. @example media_player.living_room_speaker
-          media_player?: string;
+          // undefined @example alarm_control_panel.alarm
+          entity_id: string;
+          // undefined @example 1234
+          code?: string;
+          // undefined @example away
+          mode?: "away" | "night" | "home" | "vacation" | "custom";
+          // undefined
+          skip_delay?: boolean;
+          // undefined
+          force?: boolean;
+        }
+      >;
+      //
+      disarm: ServiceFunction<
+        T,
+        {
+          // undefined @example alarm_control_panel.alarm
+          entity_id: string;
+          // undefined @example 1234
+          code?: string;
+        }
+      >;
+      //
+      enableUser: ServiceFunction<
+        T,
+        {
+          // undefined @example Frank
+          name: string;
+        }
+      >;
+      //
+      disableUser: ServiceFunction<
+        T,
+        {
+          // undefined @example Frank
+          name: string;
         }
       >;
     };
@@ -1976,6 +1964,18 @@ declare module "@hakit/core" {
         {
           // Channel number to change to.
           channel: number;
+        }
+      >;
+    };
+    googleAssistantSdk: {
+      // Sends a command as a text query to Google Assistant.
+      sendTextCommand: ServiceFunction<
+        T,
+        {
+          // Command(s) to send to Google Assistant. @example turn off kitchen TV
+          command?: string;
+          // Name(s) of media player entities to play response on. @example media_player.living_room_speaker
+          media_player?: string;
         }
       >;
     };
@@ -2016,48 +2016,6 @@ declare module "@hakit/core" {
           start_volume?: number;
           // Set to ignore or not already played episodes in a podcast playlist @example true
           ignore_fully_played?: boolean;
-        }
-      >;
-    };
-    mass: {
-      // Perform a global search on the Music Assistant library and all providers.
-      search: ServiceFunction<
-        T,
-        {
-          // The name/title to search for. @example We Are The Champions
-          name: string;
-          // The type of the content to search. Such as artist, album, track, radio or playlist. All types if omitted. @example playlist
-          media_type?: "artist" | "album" | "playlist" | "track" | "radio";
-          // When specifying a track or album name in the name field, you can optionally restrict results by this artist name. @example Queen
-          artist?: string;
-          // When specifying a track name in the name field, you can optionally restrict results by this album name. @example News of the world
-          album?: string;
-          // Maximum number of items to return (per media type). @example 25
-          limit?: number;
-        }
-      >;
-      // Play media on a Music Assistant player with more fine grained control options.
-      playMedia: ServiceFunction<
-        T,
-        {
-          // URI or name of the item you want to play. Specify a list if you want to play/enqueue multiple items. @example spotify://playlist/aabbccddeeff
-          media_id: object;
-          // The type of the content to play. Such as artist, album, track or playlist. Will be auto determined if omitted. @example playlist
-          media_type?: "artist" | "album" | "playlist" | "track" | "radio";
-          // When specifying a track or album by name in the Media ID field, you can optionally restrict results by this artist name. @example Queen
-          artist?: string;
-          // When specifying a track by name in the Media ID field, you can optionally restrict results by this album name. @example News of the world
-          album?: string;
-          // If the content should be played now or be added to the queue. Options are: play, replace, next, replace_next, add
-          enqueue?: "play" | "replace" | "next" | "replace_next" | "add";
-          // Enable radio mode to auto generate a playlist based on the selection.
-          radio_mode?: boolean;
-          // If the media should be played as an announcement. @example true
-          announce?: boolean;
-          // Use pre-announcement sound for the announcement. Used with the announce option, omit to use player default. @example true
-          use_pre_announce?: boolean;
-          // Use a forced volume level for the announcement. Used with the announce option, omit to use player default. @example 75
-          announce_volume?: number;
         }
       >;
     };
@@ -2300,52 +2258,22 @@ declare module "@hakit/core" {
       | "update.uptime_kuma_update"
       | "update.esphome_update"
       | "update.home_assistant_google_drive_backup_update"
-      | "update.hakit_update"
       | "update.music_assistant_beta_update"
       | "update.home_assistant_operating_system_update"
-      | "scene.evening_stairs_lights"
-      | "scene.daytime_stairs_lights"
+      | "light.stairs_lights"
       | "script.matrix_icon_show_and_hide_bell"
       | "zone.home"
-      | "light.stairs_lights"
       | "input_select.smart_speakers"
       | "timer.upstairs_motion_timeout"
       | "input_boolean.matrix_security_alerts"
+      | "scene.evening_stairs_lights"
+      | "scene.daytime_stairs_lights"
       | "binary_sensor.daytime"
       | "binary_sensor.overnight"
       | "sensor.studio_brightness_percent"
       | "sensor.studio_brightness_byte"
       | "cover.garagedoor"
-      | "sensor.time"
-      | "sensor.date"
-      | "select.top_stair_candle_light_scene"
-      | "number.top_stair_candle_light_timer"
-      | "light.top_stair_candle_light"
-      | "binary_sensor.rt_ax86u_ee90_wan_status"
-      | "sensor.rt_ax86u_ee90_b_received"
-      | "sensor.rt_ax86u_ee90_b_sent"
-      | "sensor.rt_ax86u_ee90_packets_received"
-      | "sensor.rt_ax86u_ee90_packets_sent"
-      | "sensor.rt_ax86u_ee90_external_ip"
-      | "sensor.rt_ax86u_ee90_wan_status"
-      | "sensor.rt_ax86u_ee90_kib_s_received"
-      | "sensor.rt_ax86u_ee90_kib_s_sent"
-      | "sensor.rt_ax86u_ee90_packets_s_received"
-      | "sensor.rt_ax86u_ee90_packets_s_sent"
-      | "binary_sensor.uptimekuma_peteflix"
-      | "sensor.uptimekuma_peteflix"
-      | "sensor.uptimekuma_192_168_0_181"
-      | "weather.chevron_seven"
-      | "select.entry_lamp_power_on_state"
-      | "number.entry_lamp_timer_2"
-      | "select.middle_stair_candle_light_scene"
-      | "number.middle_stair_candle_light_timer"
-      | "light.middle_stair_candle_light"
-      | "light.entry_lamp"
-      | "light.living_room_lamp"
-      | "light.christmas_tree_switch"
-      | "light.ivy_lights"
-      | "light.snowflakes"
+      | "conversation.home_assistant"
       | "sun.sun"
       | "sensor.sun_next_dawn"
       | "sensor.sun_next_dusk"
@@ -2353,6 +2281,16 @@ declare module "@hakit/core" {
       | "sensor.sun_next_noon"
       | "sensor.sun_next_rising"
       | "sensor.sun_next_setting"
+      | "number.top_stair_candle_light_timer"
+      | "select.top_stair_candle_light_scene"
+      | "light.top_stair_candle_light"
+      | "sensor.time"
+      | "sensor.date"
+      | "light.entry_lamp"
+      | "light.living_room_lamp"
+      | "light.christmas_tree_switch"
+      | "light.ivy_lights"
+      | "light.snowflakes"
       | "binary_sensor.tablet_is_charging"
       | "device_tracker.ha_control_tablet"
       | "sensor.tablet_battery_temperature"
@@ -2385,22 +2323,65 @@ declare module "@hakit/core" {
       | "sensor.pete_s_galaxy_watch_battery_level"
       | "sensor.pete_s_galaxy_watch_battery_state"
       | "sensor.pete_s_galaxy_watch_charger_type"
-      | "todo.dc_m_3"
+      | "number.entry_lamp_timer_2"
+      | "select.entry_lamp_power_on_state"
+      | "number.middle_stair_candle_light_timer"
+      | "select.middle_stair_candle_light_scene"
+      | "light.middle_stair_candle_light"
+      | "media_player.shield_2"
+      | "media_player.bed_speaker_pair"
+      | "media_player.kitchen_display_2"
+      | "media_player.living_room_speaker_2"
+      | "media_player.downstairs_speakers"
+      | "media_player.kitchen_speakers_2"
+      | "media_player.bathroom_speaker_2"
+      | "media_player.all_speakers_2"
+      | "media_player.upstairs_speakers"
+      | "media_player.spare_room_speaker_2"
+      | "media_player.girls_room_speaker_2"
+      | "media_player.kayleys_bed_speaker"
+      | "sensor.upstairs_tablet_browser_path"
+      | "sensor.upstairs_tablet_browser_visibility"
+      | "sensor.upstairs_tablet_browser_useragent"
+      | "sensor.upstairs_tablet_browser_user"
+      | "binary_sensor.upstairs_tablet_browser_fullykiosk"
+      | "sensor.upstairs_tablet_browser_width"
+      | "sensor.upstairs_tablet_browser_height"
+      | "binary_sensor.upstairs_tablet_browser_dark_mode"
+      | "binary_sensor.upstairs_tablet"
+      | "light.upstairs_tablet_screen"
+      | "media_player.upstairs_tablet"
       | "fan.bedroom_fan_switch"
-      | "todo.dc_m_1"
-      | "todo.dc_m_4"
-      | "todo.dc_m_6"
-      | "todo.dc_m_5"
-      | "todo.dc_m_7"
-      | "todo.dc_m_2"
-      | "todo.dc_e_2"
-      | "todo.dc_e_1"
-      | "todo.dc_e_3"
-      | "todo.dc_e_4"
-      | "todo.dc_e_6"
-      | "todo.dc_e_5"
-      | "todo.dc_e_7"
+      | "switch.entry_lamp"
+      | "media_player.spare_room_speaker"
+      | "media_player.shield"
+      | "media_player.living_room_speaker"
+      | "media_player.downstairs_speakers_2"
+      | "media_player.kitchen_speakers"
+      | "media_player.bathroom_speaker"
+      | "media_player.all_speakers"
+      | "media_player.girls_room_speaker"
+      | "media_player.upstairs_speakers_2"
+      | "media_player.bed_speaker_pair_2"
+      | "media_player.kitchen_display"
+      | "media_player.bedroom_tv"
       | "button.synchronize_devices"
+      | "cover.garage_bot"
+      | "binary_sensor.alarm_system_garage_pir_sensor"
+      | "binary_sensor.alarm_system_entry_pir_sensor"
+      | "binary_sensor.alarm_system_living_room_pir_sensor"
+      | "binary_sensor.alarm_system_upstairs_room_pir_sensor"
+      | "sensor.veggie_patch_raspberry_soil_moisture_voltage"
+      | "sensor.veggie_patch_raspberry_soil_moisture"
+      | "sensor.veggie_patch_tomato_soil_moisture_voltage"
+      | "sensor.veggie_patch_tomato_soil_moisture"
+      | "sensor.living_room_lamp_current_consumption"
+      | "sensor.living_room_lamp_total_consumption"
+      | "sensor.living_room_lamp_today_s_consumption"
+      | "sensor.living_room_lamp_voltage"
+      | "sensor.living_room_lamp_current"
+      | "switch.living_room_lamp"
+      | "switch.living_room_lamp_led"
       | "sensor.openweathermap_weather"
       | "sensor.openweathermap_dew_point"
       | "sensor.openweathermap_temperature"
@@ -2428,87 +2409,64 @@ declare module "@hakit/core" {
       | "sensor.openweathermap_forecast_wind_speed"
       | "sensor.openweathermap_forecast_cloud_coverage"
       | "weather.openweathermap"
-      | "switch.entry_lamp"
-      | "media_player.bathroom_speaker"
-      | "cover.garage_bot"
-      | "media_player.kitchen_speakers"
-      | "sensor.veggie_patch_raspberry_soil_moisture_voltage"
-      | "sensor.veggie_patch_raspberry_soil_moisture"
-      | "sensor.veggie_patch_tomato_soil_moisture_voltage"
-      | "sensor.veggie_patch_tomato_soil_moisture"
-      | "binary_sensor.alarm_system_garage_pir_sensor"
-      | "binary_sensor.alarm_system_entry_pir_sensor"
-      | "binary_sensor.alarm_system_living_room_pir_sensor"
-      | "binary_sensor.alarm_system_upstairs_room_pir_sensor"
-      | "light.landing_led_strip_disco_lights"
-      | "sensor.living_room_lamp_current_consumption"
-      | "sensor.living_room_lamp_total_consumption"
-      | "sensor.living_room_lamp_today_s_consumption"
-      | "sensor.living_room_lamp_voltage"
-      | "sensor.living_room_lamp_current"
-      | "switch.living_room_lamp"
-      | "switch.living_room_lamp_led"
-      | "media_player.all_speakers"
-      | "media_player.kitchen_display"
-      | "alarm_control_panel.alarmo"
-      | "media_player.upstairs_speakers_2"
-      | "media_player.living_room_speaker"
-      | "media_player.downstairs_speakers_2"
+      | "binary_sensor.uptimekuma_peteflix"
+      | "sensor.uptimekuma_peteflix"
+      | "sensor.uptimekuma_192_168_0_181"
+      | "binary_sensor.rt_ax86u_ee90_wan_status"
+      | "sensor.rt_ax86u_ee90_b_received"
+      | "sensor.rt_ax86u_ee90_b_sent"
+      | "sensor.rt_ax86u_ee90_packets_received"
+      | "sensor.rt_ax86u_ee90_packets_sent"
+      | "sensor.rt_ax86u_ee90_external_ip"
+      | "sensor.rt_ax86u_ee90_wan_status"
+      | "sensor.rt_ax86u_ee90_kib_s_received"
+      | "sensor.rt_ax86u_ee90_kib_s_sent"
+      | "sensor.rt_ax86u_ee90_packets_s_received"
+      | "sensor.rt_ax86u_ee90_packets_s_sent"
+      | "button.studio_matrix_restart"
+      | "light.studio_matrix_main"
+      | "light.studio_matrix"
+      | "number.studio_matrix_speed"
+      | "number.studio_matrix_intensity"
+      | "select.studio_matrix_live_override"
+      | "select.studio_matrix_playlist"
+      | "select.studio_matrix_preset"
+      | "select.studio_matrix_color_palette"
+      | "sensor.studio_matrix_led_count"
+      | "sensor.studio_matrix_ip"
+      | "switch.studio_matrix_nightlight"
+      | "switch.studio_matrix_sync_send"
+      | "switch.studio_matrix_sync_receive"
+      | "switch.studio_matrix_reverse"
+      | "update.studio_matrix_firmware"
       | "sensor.hacs"
-      | "media_player.spare_room_speaker"
-      | "media_player.girls_room_speaker"
+      | "weather.chevron_seven"
+      | "alarm_control_panel.alarmo"
       | "update.alarm_system_firmware"
-      | "media_player.bed_speaker_pair_2"
-      | "media_player.shield"
-      | "media_player.bedroom_tv"
+      | "media_player.spotify_madeleine_eldred"
+      | "media_player.spotify_peter_eldred"
+      | "media_player.spotify_emily_eldred"
       | "sensor.peteflix_cpu_usage"
-      | "sensor.peteflix_storage_w_format"
-      | "sensor.peteflix_storage_w_usage"
-      | "sensor.peteflix_storage_w_label"
-      | "sensor.peteflix_current_username"
-      | "sensor.peteflix_system_boot_time"
-      | "sensor.peteflix_system_uptime"
-      | "sensor.peteflix_system_idle_time"
-      | "sensor.peteflix_screen_0_width"
-      | "sensor.peteflix_screen_0_height"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_total_storage"
-      | "sensor.peteflix_memory_usage"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_available_free_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_total_free_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_used_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_format"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_usage"
-      | "sensor.peteflix_harddrive_peteflix_storage_d_label"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_total_storage"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_available_free_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_total_free_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_used_space"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_format"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_usage"
-      | "sensor.peteflix_harddrive_peteflix_storage_s_label"
-      | "sensor.peteflix_memory_available"
-      | "sensor.peteflix_memory_used"
-      | "sensor.peteflix_memory_total"
-      | "sensor.peteflix_battery_level"
-      | "binary_sensor.peteflix_power_status"
-      | "sensor.peteflix_battery_full_lifetime"
-      | "binary_sensor.peteflix_battery_status"
-      | "camera.peteflix_screen_0"
-      | "sensor.peteflix_battery_remaining_time"
-      | "binary_sensor.peteflix_network_0_wired"
-      | "sensor.peteflix_battery_remaining"
-      | "sensor.peteflix_network_0_ipv4"
-      | "sensor.peteflix_network_0_ipv6"
       | "sensor.peteflix_network_0_speed"
+      | "sensor.peteflix_memory_usage"
       | "sensor.peteflix_network_0_bytes_sent"
+      | "sensor.peteflix_memory_available"
       | "sensor.peteflix_network_0_bytes_received"
+      | "sensor.peteflix_memory_used"
       | "sensor.peteflix_network_0_bps_sent"
+      | "sensor.peteflix_memory_total"
       | "sensor.peteflix_network_0_bps_received"
+      | "sensor.peteflix_battery_level"
       | "sensor.peteflix_storage_c_total_storage"
+      | "sensor.peteflix_battery_full_lifetime"
       | "sensor.peteflix_storage_c_available_free_space"
+      | "sensor.peteflix_battery_remaining_time"
       | "sensor.peteflix_storage_c_total_free_space"
+      | "sensor.peteflix_battery_remaining"
       | "sensor.peteflix_storage_c_used_space"
+      | "sensor.peteflix_network_0_ipv4"
       | "sensor.peteflix_storage_c_format"
+      | "sensor.peteflix_network_0_ipv6"
       | "sensor.peteflix_storage_c_usage"
       | "sensor.peteflix_storage_c_label"
       | "sensor.peteflix_storage_e_total_storage"
@@ -2526,10 +2484,6 @@ declare module "@hakit/core" {
       | "sensor.peteflix_storage_t_usage"
       | "sensor.peteflix_storage_t_label"
       | "sensor.peteflix_storage_u_total_storage"
-      | "remote.logitech_harmony"
-      | "select.logitech_harmony_activities"
-      | "switch.logitech_harmony_nintendo_switch"
-      | "switch.logitech_harmony_shield_tv"
       | "sensor.peteflix_storage_u_available_free_space"
       | "sensor.peteflix_storage_u_total_free_space"
       | "sensor.peteflix_storage_u_used_space"
@@ -2545,43 +2499,45 @@ declare module "@hakit/core" {
       | "sensor.peteflix_storage_v_label"
       | "sensor.peteflix_storage_w_total_storage"
       | "sensor.peteflix_storage_w_available_free_space"
+      | "remote.logitech_harmony"
+      | "select.logitech_harmony_activities"
+      | "switch.logitech_harmony_nintendo_switch"
+      | "switch.logitech_harmony_shield_tv"
       | "sensor.peteflix_storage_w_total_free_space"
       | "sensor.peteflix_storage_w_used_space"
+      | "sensor.peteflix_storage_w_format"
+      | "sensor.peteflix_storage_w_usage"
+      | "sensor.peteflix_storage_w_label"
+      | "sensor.peteflix_current_username"
+      | "sensor.peteflix_system_boot_time"
+      | "sensor.peteflix_system_uptime"
+      | "sensor.peteflix_system_idle_time"
+      | "sensor.peteflix_screen_0_width"
+      | "sensor.peteflix_screen_0_height"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_total_storage"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_available_free_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_total_free_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_used_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_format"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_usage"
+      | "sensor.peteflix_harddrive_peteflix_storage_d_label"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_total_storage"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_available_free_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_total_free_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_used_space"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_format"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_usage"
+      | "sensor.peteflix_harddrive_peteflix_storage_s_label"
+      | "binary_sensor.peteflix_power_status"
+      | "camera.peteflix_screen_0"
+      | "binary_sensor.peteflix_battery_status"
+      | "binary_sensor.peteflix_network_0_wired"
       | "media_player.spotify_kayley_laura"
-      | "media_player.spotify_madeleine_eldred"
-      | "button.studio_matrix_restart"
-      | "light.studio_matrix_main"
-      | "light.studio_matrix"
-      | "number.studio_matrix_speed"
-      | "number.studio_matrix_intensity"
-      | "select.studio_matrix_live_override"
-      | "select.studio_matrix_playlist"
-      | "select.studio_matrix_preset"
-      | "select.studio_matrix_color_palette"
-      | "sensor.studio_matrix_led_count"
-      | "sensor.studio_matrix_ip"
-      | "switch.studio_matrix_nightlight"
-      | "switch.studio_matrix_sync_send"
-      | "switch.studio_matrix_sync_receive"
-      | "switch.studio_matrix_reverse"
-      | "update.studio_matrix_firmware"
-      | "media_player.spotify_peter_eldred"
+      | "switch.sonoff_doorbell_chime"
       | "switch.peteflix_power_switch"
-      | "switch.test_switch"
       | "switch.sonoff_ivy_lights"
       | "switch.sonoff_snowflakes"
-      | "media_player.spotify_emily_eldred"
-      | "media_player.bathroom_speaker_2"
-      | "media_player.all_speakers_2"
-      | "media_player.upstairs_speakers"
-      | "media_player.spare_room_speaker_2"
-      | "media_player.girls_room_speaker_2"
-      | "media_player.bed_speaker_pair"
-      | "media_player.shield_2"
-      | "media_player.kitchen_display_2"
-      | "media_player.living_room_speaker_2"
-      | "media_player.downstairs_speakers"
-      | "media_player.kitchen_speakers_2"
+      | "number.sonoff_doorbell_chime_pulsewidth"
       | "camera.front_doorbell"
       | "binary_sensor.lumi_studio_motion_sensor_occupancy"
       | "binary_sensor.lumi_studio_motion_sensor_movement"
@@ -2769,20 +2725,8 @@ declare module "@hakit/core" {
       | "media_player.emby_chromecast_40"
       | "media_player.emby_chromecast_41"
       | "sensor.christmas_tree_power_factor"
-      | "update.landing_led_strip_firmware"
       | "media_player.emby_chromecast_42"
       | "media_player.emby_chrome_2"
-      | "sensor.upstairs_tablet_browser_path"
-      | "sensor.upstairs_tablet_browser_visibility"
-      | "sensor.upstairs_tablet_browser_useragent"
-      | "sensor.upstairs_tablet_browser_user"
-      | "binary_sensor.upstairs_tablet_browser_fullykiosk"
-      | "sensor.upstairs_tablet_browser_width"
-      | "sensor.upstairs_tablet_browser_height"
-      | "binary_sensor.upstairs_tablet_browser_dark_mode"
-      | "binary_sensor.upstairs_tablet"
-      | "light.upstairs_tablet_screen"
-      | "media_player.upstairs_tablet"
       | "media_player.emby_pixel_7"
       | "media_player.emby_eldroidz2"
       | "media_player.emby_eldroidz2_2"

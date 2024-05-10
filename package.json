@@ -1,43 +1,47 @@
 {
   "name": "Shepherd",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run generate-meta-tag && tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prettier": "prettier --write .",
     "sync": "npx ts-node --esm ./sync-types.ts",
     "prebuild": "npm run prettier && npm run sync",
-    "deploy": "npx ts-node --esm scripts/deploy.ts"
+    "deploy": "npm run build && npx ts-node --esm scripts/deploy.ts",
+    "generate-meta-tag": "node ./node_modules/react-cache-buster/dist/generate-meta-tag.js",
+    "bump-build": "npm-bump build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@hakit/components": "^3.1.4",
-    "@hakit/core": "^3.1.4",
-    "@mui/material": "^5.15.15",
-    "eslint-plugin-import": "^2.29.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@hakit/components": "^3.1.5",
+    "@hakit/core": "^3.1.5",
+    "npm-bump": "^0.0.33",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "@types/react": "^18.2.79",
-    "@types/react-dom": "^18.2.25",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
+    "@mui/material": "^5.15.17",
+    "@types/node": "^20.12.11",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
     "@vitejs/plugin-react": "^4.2.1",
     "chalk": "^5.3.0",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
     "node-scp": "^0.0.23",
     "prettier": "^3.2.5",
+    "react-cache-buster": "^0.1.8",
     "typescript": "^5.4.5",
-    "vite": "^5.2.10"
+    "vite": "^5.2.11"
   }
 }
