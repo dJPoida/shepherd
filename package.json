@@ -1,28 +1,27 @@
 {
   "name": "Shepherd",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate-meta-tag && tsc && vite build",
+    "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prettier": "prettier --write .",
     "sync": "npx ts-node --esm ./sync-types.ts",
     "prebuild": "npm run prettier && npm run sync",
-    "deploy": "npm run build && npx ts-node --esm scripts/deploy.ts",
-    "generate-meta-tag": "node ./node_modules/react-cache-buster/dist/generate-meta-tag.js",
-    "bump-build": "npm-bump build"
+    "deploy": "npm run build && npx ts-node --esm scripts/deploy.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@hakit/components": "^3.1.5",
     "@hakit/core": "^3.1.5",
-    "npm-bump": "^0.0.33",
+    "@mui/icons-material": "^5.15.17",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@mui/material": "^5.15.17",
@@ -40,7 +39,6 @@
     "eslint-plugin-react-refresh": "^0.4.7",
     "node-scp": "^0.0.23",
     "prettier": "^3.2.5",
-    "react-cache-buster": "^0.1.8",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   }

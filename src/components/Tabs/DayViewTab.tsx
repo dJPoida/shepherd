@@ -13,7 +13,7 @@ export const DayViewTab: React.FC = () => {
       style={{ padding: '1em' }}
     >
       <DaySummaryCard style={{ flex: 1 }} />
-      <DayPersonCard name="Chicken" style={{ flex: 1 }} />
+      <DayPersonCard name="Madeleine" style={{ flex: 1 }} />
       <DayPersonCard name="Emily" style={{ flex: 1 }} />
     </Row>
   );
